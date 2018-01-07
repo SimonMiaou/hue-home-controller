@@ -1,0 +1,22 @@
+{
+  "name": "hue-home-controller-server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimonMiaou/hue-home-controller.git"
+  },
+  "author": "Simon Lacroix <simon@miaou.be>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SimonMiaou/hue-home-controller/issues"
+  },
+  "homepage": "https://github.com/SimonMiaou/hue-home-controller#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
