@@ -19,7 +19,8 @@
   "homepage": "https://github.com/SimonMiaou/hue-home-controller#readme",
   "dependencies": {
     "express": "^4.16.2",
-    "node-hue-api": "^2.4.2"
+    "node-hue-api": "^2.4.2",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",

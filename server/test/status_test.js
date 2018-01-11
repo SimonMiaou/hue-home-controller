@@ -7,17 +7,18 @@ const { assert } = chai;
 chai.use(chaiHttp);
 
 
-describe('State', () => {
+describe('Auth', () => {
   beforeEach((done) => {
     done();
   });
 
-  describe('/GET book', () => {
+  describe('/GET /api/auth', () => {
     it('return a 200', (done) => {
       chai.request(app)
-        .get('/api/state')
+        .get('/api/auth')
         .end((err, res) => {
           assert.equal(res.status, 200);
+          console.log(res.body);
           done();
         });
     });
