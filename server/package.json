@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node server.js",
-    "test": "mocha --exit"
+    "test": "NODE_ENV=test mocha --recursive --exit"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,7 @@
   "homepage": "https://github.com/SimonMiaou/hue-home-controller#readme",
   "dependencies": {
     "express": "^4.16.2",
-    "node-hue-api": "^2.4.2",
-    "redis": "^2.8.0"
+    "node-hue-api": "^2.4.2"
   },
   "devDependencies": {
     "chai": "^4.1.2",
@@ -28,6 +27,9 @@
     "eslint": "^4.15.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "mocha": "^4.1.0"
+    "faker": "^4.1.0",
+    "mocha": "^4.1.0",
+    "mongoose": "^4.13.9",
+    "nock": "^9.1.6"
   }
 }
