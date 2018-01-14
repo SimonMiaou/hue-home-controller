@@ -8,3 +8,4 @@ script:
   - yarn run lint
 node_js:
   - '8'
+  - 'node'

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 
-const NODE_ENV = process.env.NODE_ENV;
+const { NODE_ENV } = process.env;
 let configBuffer = null;
 
 if (NODE_ENV) {

@@ -14,16 +14,8 @@ describe('HueBridgeConnector', () => {
 
   beforeEach((done) => {
     nock.disableNetConnect();
-    nock.enableNetConnect(/127\.0\.0\.1/);
 
     bridgeConnector = new HueBridgeConnector();
-
-    HueBridgeConfiguration.find((error, bridgeConfigurations) => {
-      if (error) { throw error; }
-      bridgeConfigurations.forEach((bridge) => {
-        bridge.remove();
-      });
-    });
 
     done();
   });
@@ -34,20 +26,41 @@ describe('HueBridgeConnector', () => {
   });
 
   describe('constructor', () => {
-    it('fetch username in the database', (done) => {
-      // TODO
+    it('fetch bridge configuration in the database', (done) => {
+      HueBridgeConfiguration.find((error, bridgeConfigurations) => {
+        if (error) { throw error; }
+        bridgeConfigurations.forEach(bridge => bridge.remove());
+      });
 
-      done();
+      const bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
+      bridge.save().then(() => {
+        assert(bridgeConnector.isRegistered());
+        done();
+      }).catch(done);
     });
   });
 
   describe('register', () => {
-    it('Create a user on the bridge', (done) => {
+    it('create a user on the bridge and save it', (done) => {
+      HueBridgeConfiguration.find((error, bridgeConfigurations) => {
+        if (error) { throw error; }
+        bridgeConfigurations.forEach(bridge => bridge.remove());
+      });
+
+      bridgeConnector = new HueBridgeConnector();
+
       assert(!bridgeConnector.isRegistered());
       bridgeConnector.register().then(() => {
-        // TODO nock
         assert(bridgeConnector.isRegistered());
-        done();
+
+        HueBridgeConfiguration.find((error, bridgeConfigurations) => {
+          if (error) { throw error; }
+          assert.equal(1, bridgeConfigurations.length);
+          assert.equal(bridgeConnector.bridge.host, bridgeConfigurations[0].host);
+          assert.equal(bridgeConnector.bridge.username, bridgeConfigurations[0].username);
+
+          done();
+        });
       }).catch(done);
     });
   });
