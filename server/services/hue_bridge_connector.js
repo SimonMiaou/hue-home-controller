@@ -21,8 +21,17 @@ class HueBridgeConnector {
     this.bridgeConfiguration = bridgeConfiguration;
   }
 
+  api() {
+    if (!this.isRegistered()) { throw new Error('no bridge registered'); }
+    return new HueApi(this.bridgeConfiguration.host, this.bridgeConfiguration.username);
+  }
+
   isRegistered() {
     return !!this.bridgeConfiguration;
+  }
+
+  async lights() {
+    return this.api().lights();
   }
 
   async register() {

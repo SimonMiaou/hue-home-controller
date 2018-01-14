@@ -47,6 +47,20 @@ describe('HueBridgeConnector', () => {
     });
   });
 
+  describe('isRegistered', () => {
+    it('return false when it havent a username', async () => {
+      bridgeConnector.bridgeConfiguration = null;
+
+      assert(!bridgeConnector.isRegistered());
+    });
+
+    it('return true when it have a username', async () => {
+      bridgeConnector.bridgeConfiguration = new HueBridgeConfiguration({ host: '192.168.178.52', username: faker.random.uuid() });
+
+      assert(bridgeConnector.isRegistered());
+    });
+  });
+
   describe('register', () => {
     beforeEach(async () => {
       const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
@@ -96,17 +110,60 @@ describe('HueBridgeConnector', () => {
     });
   });
 
-  describe('isRegistered', () => {
-    it('return false when it havent a username', async () => {
-      bridgeConnector.bridgeConfiguration = null;
+  describe('lights', () => {
+    it('return the lights', async () => {
+      nock('http://192.168.178.52:80', { encodedQueryParams: true })
+        .get('/api/6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z/lights')
+        .reply(200, {
+          1: {
+            state: {
+              on: true, bri: 23, hue: 8403, sat: 140, effect: 'none', xy: [0.4575, 0.4099], ct: 366, alert: 'lselect', colormode: 'xy', mode: 'homeautomation', reachable: true,
+            },
+            swupdate: { state: 'noupdates', lastinstall: '2017-12-29T20:06:13' },
+            type: 'Extended color light',
+            name: 'Anna',
+            modelid: 'LCT015',
+            manufacturername: 'Philips',
+            capabilities: { streaming: { renderer: true, proxy: true } },
+            uniqueid: '00:17:88:01:03:54:a9:5d-0b',
+            swversion: '1.29.0_r21169',
+            swconfigid: '3416C2DD',
+            productid: 'Philips-LCT015-1-A19ECLv5',
+          },
+          2: {
+            state: {
+              on: false, bri: 254, hue: 8418, sat: 140, effect: 'none', xy: [0.4573, 0.41], ct: 366, alert: 'none', colormode: 'ct', mode: 'homeautomation', reachable: true,
+            },
+            swupdate: { state: 'noupdates', lastinstall: '2017-12-31T19:21:56' },
+            type: 'Extended color light',
+            name: 'Teresa',
+            modelid: 'LCT015',
+            manufacturername: 'Philips',
+            capabilities: { streaming: { renderer: true, proxy: true } },
+            uniqueid: '00:17:88:01:03:54:b5:8b-0b',
+            swversion: '1.29.0_r21169',
+            swconfigid: '3416C2DD',
+            productid: 'Philips-LCT015-1-A19ECLv5',
+          },
+          3: {
+            state: {
+              on: false, bri: 1, hue: 6291, sat: 251, effect: 'none', xy: [0.5612, 0.4042], ct: 500, alert: 'lselect', colormode: 'xy', mode: 'homeautomation', reachable: true,
+            },
+            swupdate: { state: 'noupdates', lastinstall: '2017-12-29T20:06:08' },
+            type: 'Extended color light',
+            name: 'Helena',
+            modelid: 'LCT015',
+            manufacturername: 'Philips',
+            capabilities: { streaming: { renderer: true, proxy: true } },
+            uniqueid: '00:17:88:01:03:54:b6:2b-0b',
+            swversion: '1.29.0_r21169',
+            swconfigid: '3416C2DD',
+            productid: 'Philips-LCT015-1-A19ECLv5',
+          },
+        });
 
-      assert(!bridgeConnector.isRegistered());
-    });
-
-    it('return true when it have a username', async () => {
-      bridgeConnector.bridgeConfiguration = new HueBridgeConfiguration({ host: '192.168.178.52', username: faker.random.uuid() });
-
-      assert(bridgeConnector.isRegistered());
+      const lights = await bridgeConnector.lights();
+      console.log(lights);
     });
   });
 });
