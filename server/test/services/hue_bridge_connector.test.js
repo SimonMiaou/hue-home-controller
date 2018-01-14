@@ -27,7 +27,17 @@ describe('HueBridgeConnector', () => {
   });
 
   describe('load', () => {
-    it('fetch bridge configuration from the database', async () => {
+    it('return a connector without configuration when none are present in the database', async () => {
+      const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
+      bridgeConfigurations.forEach((bridge) => {
+        bridge.remove();
+      });
+
+      bridgeConnector = await HueBridgeConnector.load();
+      assert(!bridgeConnector.isRegistered());
+    });
+
+    it('return a connector with configuration if there is one in the database', async () => {
       const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
       bridgeConfigurations.forEach((bridge) => {
         bridge.remove();
@@ -36,14 +46,14 @@ describe('HueBridgeConnector', () => {
       const bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
       await bridge.save();
 
-      const bridgeConnector = await HueBridgeConnector.load();
+      bridgeConnector = await HueBridgeConnector.load();
       assert(bridgeConnector.isRegistered());
     });
   });
 
   describe('register', () => {
     it('create a user on the bridge and save it', async () => {
-      const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
+      let bridgeConfigurations = await HueBridgeConfiguration.find().exec();
       bridgeConfigurations.forEach((bridge) => {
         bridge.remove();
       });
@@ -51,18 +61,14 @@ describe('HueBridgeConnector', () => {
       bridgeConnector = new HueBridgeConnector();
 
       assert(!bridgeConnector.isRegistered());
+      await bridgeConnector.register();
+      assert(bridgeConnector.isRegistered());
 
-      await bridgeConnector.register().then(() => {
-        assert(bridgeConnector.isRegistered());
+      bridgeConfigurations = await HueBridgeConfiguration.find().exec();
 
-        HueBridgeConfiguration.find((error, bridgeConfigurations) => {
-          if (error) { throw error; }
-
-          assert.equal(1, bridgeConfigurations.length);
-          assert.equal(bridgeConnector.bridgeConfiguration.host, bridgeConfigurations[0].host);
-          assert.equal(bridgeConnector.bridgeConfiguration.username, bridgeConfigurations[0].username);
-        });
-      });
+      assert.equal(1, bridgeConfigurations.length);
+      assert.equal(bridgeConnector.bridgeConfiguration.host, bridgeConfigurations[0].host);
+      assert.equal(bridgeConnector.bridgeConfiguration.username, bridgeConfigurations[0].username);
     });
   });
 

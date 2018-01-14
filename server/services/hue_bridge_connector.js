@@ -12,6 +12,7 @@ class HueBridgeConnector {
     if (bridgeConfigurations[0]) {
       return new HueBridgeConnector(bridgeConfigurations[0]);
     }
+    return new HueBridgeConnector();
   }
 
   constructor(bridgeConfiguration) {
