@@ -56,8 +56,8 @@ describe('HueBridgeConnector', () => {
     });
 
     it('raise an error if the button was not pressed', async () => {
-      nock('https://www.meethue.com:443').get('/api/nupnp').reply(200, [{ id: '001788fffe7cad63', internalipaddress: '192.168.178.52' }]);
-      nock('http://192.168.178.52:80')
+      const meethueCall = nock('https://www.meethue.com:443').get('/api/nupnp').reply(200, [{ id: '001788fffe7cad63', internalipaddress: '192.168.178.52' }]);
+      const postApiCall = nock('http://192.168.178.52:80')
         .post('/api', { devicetype: 'hue-home-controller' })
         .reply(200, [{ error: { type: 101, address: '', description: 'link button not pressed' } }]);
 
@@ -66,11 +66,14 @@ describe('HueBridgeConnector', () => {
       assert(!bridgeConnector.isRegistered());
       await assert.isRejected(bridgeConnector.register(), /link button not pressed/);
       assert(!bridgeConnector.isRegistered());
+
+      meethueCall.done();
+      postApiCall.done();
     });
 
     it('create a user on the bridge and save it if the button was pressed', async () => {
-      nock('https://www.meethue.com:443').get('/api/nupnp').reply(200, [{ id: '001788fffe7cad63', internalipaddress: '192.168.178.52' }]);
-      nock('http://192.168.178.52:80')
+      const meethueCall = nock('https://www.meethue.com:443').get('/api/nupnp').reply(200, [{ id: '001788fffe7cad63', internalipaddress: '192.168.178.52' }]);
+      const postApiCall = nock('http://192.168.178.52:80')
         .post('/api', { devicetype: 'hue-home-controller' })
         .reply(200, [{ success: { username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' } }]);
 
@@ -87,6 +90,9 @@ describe('HueBridgeConnector', () => {
       assert.equal(1, bridgeConfigurations.length);
       assert.equal(bridgeConnector.bridgeConfiguration.host, bridgeConfigurations[0].host);
       assert.equal(bridgeConnector.bridgeConfiguration.username, bridgeConfigurations[0].username);
+
+      meethueCall.done();
+      postApiCall.done();
     });
   });
 
