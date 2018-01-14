@@ -26,22 +26,21 @@ describe('HueBridgeConnector', () => {
   });
 
   describe('constructor', () => {
-    it('fetch bridge configuration in the database', (done) => {
+    it('fetch bridge configuration in the database', async () => {
       HueBridgeConfiguration.find((error, bridgeConfigurations) => {
         if (error) { throw error; }
         bridgeConfigurations.forEach(bridge => bridge.remove());
       });
 
       const bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
-      bridge.save().then(() => {
-        assert(bridgeConnector.isRegistered());
-        done();
-      }).catch(done);
+      await bridge.save();
+
+      assert(bridgeConnector.isRegistered());
     });
   });
 
   describe('register', () => {
-    it('create a user on the bridge and save it', (done) => {
+    it('create a user on the bridge and save it', async () => {
       HueBridgeConfiguration.find((error, bridgeConfigurations) => {
         if (error) { throw error; }
         bridgeConfigurations.forEach(bridge => bridge.remove());
@@ -50,32 +49,32 @@ describe('HueBridgeConnector', () => {
       bridgeConnector = new HueBridgeConnector();
 
       assert(!bridgeConnector.isRegistered());
-      bridgeConnector.register().then(() => {
+
+      await bridgeConnector.register().then(() => {
         assert(bridgeConnector.isRegistered());
 
         HueBridgeConfiguration.find((error, bridgeConfigurations) => {
           if (error) { throw error; }
+
           assert.equal(1, bridgeConfigurations.length);
           assert.equal(bridgeConnector.bridge.host, bridgeConfigurations[0].host);
           assert.equal(bridgeConnector.bridge.username, bridgeConfigurations[0].username);
-
-          done();
         });
-      }).catch(done);
+      });
     });
   });
 
   describe('isRegistered', () => {
-    it('return false when it havent a username', (done) => {
+    it('return false when it havent a username', async () => {
       bridgeConnector.bridge = null;
+
       assert(!bridgeConnector.isRegistered());
-      done();
     });
 
-    it('return true when it have a username', (done) => {
+    it('return true when it have a username', async () => {
       bridgeConnector.bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: faker.random.uuid() });
+
       assert(bridgeConnector.isRegistered());
-      done();
     });
   });
 });
