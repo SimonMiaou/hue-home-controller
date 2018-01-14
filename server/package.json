@@ -19,6 +19,7 @@
   "homepage": "https://github.com/SimonMiaou/hue-home-controller#readme",
   "dependencies": {
     "express": "^4.16.2",
+    "mongoose": "^4.13.9",
     "node-hue-api": "^2.4.2"
   },
   "devDependencies": {
@@ -29,7 +30,6 @@
     "eslint-plugin-import": "^2.8.0",
     "faker": "^4.1.0",
     "mocha": "^4.1.0",
-    "mongoose": "^4.13.9",
     "nock": "^9.1.6"
   }
 }

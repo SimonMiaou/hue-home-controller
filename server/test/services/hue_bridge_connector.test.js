@@ -1,5 +1,6 @@
 const HueBridgeConnector = require('../../services/hue_bridge_connector');
 const chai = require('chai');
+const HueBridgeConfiguration = require('../../models/hue_bridge_configuration');
 const nock = require('nock');
 const faker = require('faker');
 const chaiHttp = require('chai-http');
@@ -16,6 +17,14 @@ describe('HueBridgeConnector', () => {
     nock.enableNetConnect(/127\.0\.0\.1/);
 
     bridgeConnector = new HueBridgeConnector();
+
+    HueBridgeConfiguration.find((error, bridgeConfigurations) => {
+      if (error) { throw error; }
+      bridgeConfigurations.forEach((bridge) => {
+        bridge.remove();
+      });
+    });
+
     done();
   });
 
@@ -34,25 +43,25 @@ describe('HueBridgeConnector', () => {
 
   describe('register', () => {
     it('Create a user on the bridge', (done) => {
-      assert(!bridgeConnector.registered());
+      assert(!bridgeConnector.isRegistered());
       bridgeConnector.register().then(() => {
         // TODO nock
-        assert(bridgeConnector.registered());
+        assert(bridgeConnector.isRegistered());
         done();
       }).catch(done);
     });
   });
 
-  describe('registered', () => {
+  describe('isRegistered', () => {
     it('return false when it havent a username', (done) => {
-      bridgeConnector.username = null;
-      assert(!bridgeConnector.registered());
+      bridgeConnector.bridge = null;
+      assert(!bridgeConnector.isRegistered());
       done();
     });
 
     it('return true when it have a username', (done) => {
-      bridgeConnector.username = faker.random.uuid();
-      assert(bridgeConnector.registered());
+      bridgeConnector.bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: faker.random.uuid() });
+      assert(bridgeConnector.isRegistered());
       done();
     });
   });

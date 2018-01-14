@@ -28,7 +28,6 @@ describe('Auth', () => {
         .get('/api/auth')
         .end((err, res) => {
           assert.equal(res.status, 200);
-          console.log(res.body);
           done();
         });
     });
