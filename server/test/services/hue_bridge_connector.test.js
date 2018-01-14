@@ -12,37 +12,31 @@ chai.use(chaiHttp);
 describe('HueBridgeConnector', () => {
   let bridgeConnector = null;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     nock.disableNetConnect();
 
     const bridgeConfiguration = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
-    this.bridgeConnector = new HueBridgeConnector(bridgeConfiguration);
-
-    done();
+    bridgeConnector = new HueBridgeConnector(bridgeConfiguration);
   });
 
-  afterEach((done) => {
+  afterEach(async () => {
     nock.enableNetConnect();
-    done();
   });
 
   describe('load', () => {
-    it('return a connector without configuration when none are present in the database', async () => {
+    beforeEach(async () => {
       const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
       bridgeConfigurations.forEach((bridge) => {
         bridge.remove();
       });
+    });
 
+    it('return a connector without configuration when none are present in the database', async () => {
       bridgeConnector = await HueBridgeConnector.load();
       assert(!bridgeConnector.isRegistered());
     });
 
     it('return a connector with configuration if there is one in the database', async () => {
-      const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
-      bridgeConfigurations.forEach((bridge) => {
-        bridge.remove();
-      });
-
       const bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
       await bridge.save();
 
@@ -52,19 +46,21 @@ describe('HueBridgeConnector', () => {
   });
 
   describe('register', () => {
-    it('create a user on the bridge and save it', async () => {
-      let bridgeConfigurations = await HueBridgeConfiguration.find().exec();
+    beforeEach(async () => {
+      const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
       bridgeConfigurations.forEach((bridge) => {
         bridge.remove();
       });
+    });
 
+    it('create a user on the bridge and save it', async () => {
       bridgeConnector = new HueBridgeConnector();
 
       assert(!bridgeConnector.isRegistered());
       await bridgeConnector.register();
       assert(bridgeConnector.isRegistered());
 
-      bridgeConfigurations = await HueBridgeConfiguration.find().exec();
+      const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
 
       assert.equal(1, bridgeConfigurations.length);
       assert.equal(bridgeConnector.bridgeConfiguration.host, bridgeConfigurations[0].host);
