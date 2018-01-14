@@ -1,12 +1,14 @@
-const HueBridgeConnector = require('../../services/hue_bridge_connector');
 const chai = require('chai');
-const HueBridgeConfiguration = require('../../models/hue_bridge_configuration');
-const nock = require('nock');
-const faker = require('faker');
+const chaiAsPromised = require('chai-as-promised');
 const chaiHttp = require('chai-http');
+const faker = require('faker');
+const HueBridgeConfiguration = require('../../models/hue_bridge_configuration');
+const HueBridgeConnector = require('../../services/hue_bridge_connector');
+const nock = require('nock');
 
 const { assert } = chai;
 
+chai.use(chaiAsPromised);
 chai.use(chaiHttp);
 
 describe('HueBridgeConnector', () => {
@@ -53,12 +55,32 @@ describe('HueBridgeConnector', () => {
       });
     });
 
-    it('create a user on the bridge and save it', async () => {
+    it('raise an error if the button was not pressed', async () => {
+      nock('https://www.meethue.com:443').get('/api/nupnp').reply(200, [{ id: '001788fffe7cad63', internalipaddress: '192.168.178.52' }]);
+      nock('http://192.168.178.52:80')
+        .post('/api', { devicetype: 'hue-home-controller' })
+        .reply(200, [{ error: { type: 101, address: '', description: 'link button not pressed' } }]);
+
+      bridgeConnector = new HueBridgeConnector();
+
+      assert(!bridgeConnector.isRegistered());
+      await assert.isRejected(bridgeConnector.register(), /link button not pressed/);
+      assert(!bridgeConnector.isRegistered());
+    });
+
+    it('create a user on the bridge and save it if the button was pressed', async () => {
+      nock('https://www.meethue.com:443').get('/api/nupnp').reply(200, [{ id: '001788fffe7cad63', internalipaddress: '192.168.178.52' }]);
+      nock('http://192.168.178.52:80')
+        .post('/api', { devicetype: 'hue-home-controller' })
+        .reply(200, [{ success: { username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' } }]);
+
       bridgeConnector = new HueBridgeConnector();
 
       assert(!bridgeConnector.isRegistered());
       await bridgeConnector.register();
       assert(bridgeConnector.isRegistered());
+      assert.equal('192.168.178.52', bridgeConnector.bridgeConfiguration.host);
+      assert.equal('6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z', bridgeConnector.bridgeConfiguration.username);
 
       const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
 

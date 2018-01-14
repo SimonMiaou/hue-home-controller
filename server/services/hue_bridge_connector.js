@@ -1,6 +1,8 @@
-const mongoose = require('mongoose');
 const config = require('../config');
+const hue = require('node-hue-api');
+const { HueApi } = require('node-hue-api');
 const HueBridgeConfiguration = require('../models/hue_bridge_configuration');
+const mongoose = require('mongoose');
 
 mongoose.connect(config.database, { useMongoClient: true });
 mongoose.Promise = Promise;
@@ -24,7 +26,15 @@ class HueBridgeConnector {
   }
 
   async register() {
-    const bridgeConfiguration = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
+    const bridges = await hue.nupnpSearch();
+    if (bridges.length === 0) { throw new Error('No bridge was found'); }
+
+    const host = bridges[0].ipaddress;
+    const hueApi = new HueApi();
+    const userDescription = 'hue-home-controller';
+    const username = await hueApi.registerUser(host, userDescription);
+
+    const bridgeConfiguration = new HueBridgeConfiguration({ host, username });
     await bridgeConfiguration.save();
     this.bridgeConfiguration = bridgeConfiguration;
   }
