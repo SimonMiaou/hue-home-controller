@@ -163,7 +163,17 @@ describe('HueBridgeConnector', () => {
         });
 
       const lights = await bridgeConnector.lights();
-      console.log(lights);
+      assert.equal('1', lights[0].id);
+      assert.equal(true, lights[0].state.on);
+      assert.equal('Anna', lights[0].name);
+
+      assert.equal('2', lights[1].id);
+      assert.equal(false, lights[1].state.on);
+      assert.equal('Teresa', lights[1].name);
+
+      assert.equal('3', lights[2].id);
+      assert.equal(false, lights[2].state.on);
+      assert.equal('Helena', lights[2].name);
     });
   });
 });

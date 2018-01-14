@@ -1,4 +1,5 @@
 const config = require('../config');
+const HueLight = require('../models/hue_light');
 const hue = require('node-hue-api');
 const { HueApi } = require('node-hue-api');
 const HueBridgeConfiguration = require('../models/hue_bridge_configuration');
@@ -31,7 +32,8 @@ class HueBridgeConnector {
   }
 
   async lights() {
-    return this.api().lights();
+    const api = this.api();
+    return api.lights().then(result => result.lights.map(light => new HueLight(api, light)));
   }
 
   async register() {
