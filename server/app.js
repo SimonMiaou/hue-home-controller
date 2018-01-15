@@ -1,25 +1,17 @@
 const express = require('express');
-const hue = require('node-hue-api');
-const { HueApi } = require('node-hue-api');
+const HueBridgeConnector = require('./services/hue_bridge_connector');
 
 const app = express();
 
 
-app.get('/api/auth', (req, res) => {
-  const bridgeHost = null;
-  const bridgeUsername = null;
+app.get('/api/auth', async (req, res) => {
+  const bridgeConnector = await HueBridgeConnector.load();
 
-
-  if (bridgeHost && bridgeUsername) {
-    const hueApi = new HueApi(bridgeHost, bridgeUsername);
-
-    hueApi.config().then((result) => {
-      res.send({ auth: true, result });
-    });
+  if (bridgeConnector.isRegistered()) {
+    const bridge = await bridgeConnector.bridge();
+    res.send({ auth: true, hue_bridge: bridge.asJson() });
   } else {
-    hue.nupnpSearch().then((bridges) => {
-      res.send({ auth: false, bridges });
-    });
+    res.send({ auth: false });
   }
 });
 

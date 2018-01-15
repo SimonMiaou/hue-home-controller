@@ -34,3 +34,10 @@
 // nock('http://192.168.178.52:80')
 //   .post('/api', { devicetype: 'hue-home-controller' })
 //   .reply(200, [{ success: { username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' } }]);
+
+
+// nock.enableNetConnect();
+// nock.recorder.rec();
+
+// nock.recorder.reset()
+// nock.disableNetConnect();

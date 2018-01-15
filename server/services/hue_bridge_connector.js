@@ -1,9 +1,10 @@
 const config = require('../config');
-const HueLight = require('../models/hue_light');
 const hue = require('node-hue-api');
-const { HueApi } = require('node-hue-api');
+const HueBridge = require('../models/hue_bridge');
 const HueBridgeConfiguration = require('../models/hue_bridge_configuration');
+const HueLight = require('../models/hue_light');
 const mongoose = require('mongoose');
+const { HueApi } = require('node-hue-api');
 
 mongoose.connect(config.database, { useMongoClient: true });
 mongoose.Promise = Promise;
@@ -25,6 +26,11 @@ class HueBridgeConnector {
   api() {
     if (!this.isRegistered()) { throw new Error('no bridge registered'); }
     return new HueApi(this.bridgeConfiguration.host, this.bridgeConfiguration.username);
+  }
+
+  async bridge() {
+    const api = this.api();
+    return api.config().then(bridge => new HueBridge(api, bridge));
   }
 
   isRegistered() {
