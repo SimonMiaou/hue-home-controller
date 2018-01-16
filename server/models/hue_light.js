@@ -12,6 +12,12 @@ class HueLight {
     this.uniqueid = attributes.uniqueid;
     this.productid = attributes.productid;
   }
+
+  asJson() {
+    return {
+      id: this.id,
+    };
+  }
 }
 
 module.exports = HueLight;

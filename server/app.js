@@ -23,7 +23,19 @@ app.route('/api/auth')
       const bridge = await bridgeConnector.bridge();
       res.send({ authenticated: true, hue_bridge: bridge.asJson() });
     } catch (error) {
-      res.status(401).send({ error: error.message });
+      res.status(500).send({ error: error.message });
+    }
+  });
+
+app.route('/api/lights')
+  .get(async (req, res) => {
+    try {
+      const bridgeConnector = await HueBridgeConnector.load();
+
+      const lights = await bridgeConnector.lights();
+      res.send({ lights: lights.map(light => light.asJson()) });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
     }
   });
 

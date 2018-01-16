@@ -23,9 +23,7 @@ describe('/api/auth', () => {
     describe('when there is no bridge configuration', () => {
       beforeEach(async () => {
         const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
-        bridgeConfigurations.forEach((bridge) => {
-          bridge.remove();
-        });
+        await Promise.all(bridgeConfigurations.map(bridge => bridge.remove()));
       });
 
       it('return a 200 with auth to false', async () => {
@@ -41,9 +39,7 @@ describe('/api/auth', () => {
     describe('when there is a bridge configuration', () => {
       beforeEach(async () => {
         const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
-        bridgeConfigurations.forEach((bridge) => {
-          bridge.remove();
-        });
+        await Promise.all(bridgeConfigurations.map(bridge => bridge.remove()));
 
         const bridge = new HueBridgeConfiguration({ host: '192.168.178.52', username: '6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z' });
         await bridge.save();
@@ -121,7 +117,7 @@ describe('/api/auth', () => {
             meethueCall.done();
             postApiCall.done();
 
-            assert.equal(401, error.status);
+            assert.equal(500, error.status);
             assert.equal('link button not pressed', error.response.body.error);
           });
       });

@@ -28,9 +28,7 @@ describe('HueBridgeConnector', () => {
   describe('load', () => {
     beforeEach(async () => {
       const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
-      bridgeConfigurations.forEach((bridge) => {
-        bridge.remove();
-      });
+      await Promise.all(bridgeConfigurations.map(bridge => bridge.remove()));
     });
 
     it('return a connector without configuration when none are present in the database', async () => {
@@ -120,9 +118,7 @@ describe('HueBridgeConnector', () => {
   describe('register', () => {
     beforeEach(async () => {
       const bridgeConfigurations = await HueBridgeConfiguration.find().exec();
-      bridgeConfigurations.forEach((bridge) => {
-        bridge.remove();
-      });
+      await Promise.all(bridgeConfigurations.map(bridge => bridge.remove()));
     });
 
     it('raise an error if the button was not pressed', async () => {
@@ -168,7 +164,7 @@ describe('HueBridgeConnector', () => {
 
   describe('lights', () => {
     it('return the lights', async () => {
-      nock('http://192.168.178.52:80', { encodedQueryParams: true })
+      const lightsCall = nock('http://192.168.178.52:80', { encodedQueryParams: true })
         .get('/api/6K80BvWnjuuV5sE0VmWnk2JEwn0oJqWmeEYRXj6z/lights')
         .reply(200, {
           1: {
@@ -219,6 +215,8 @@ describe('HueBridgeConnector', () => {
         });
 
       const lights = await bridgeConnector.lights();
+      lightsCall.done();
+
       assert.equal('1', lights[0].id);
       assert.equal(true, lights[0].state.on);
       assert.equal('Anna', lights[0].name);
